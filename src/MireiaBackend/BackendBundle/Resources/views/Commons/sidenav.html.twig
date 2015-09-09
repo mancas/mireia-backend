@@ -1,0 +1,86 @@
+{% set action = app.request.attributes.get('_route') %}
+{% set params = app.request.attributes.get('_route_params') %}
+{% set toggleState = 'false' %}
+
+{% if action == 'admin_user_profile' %}
+    {% set toggleState = 'true' %}
+{% endif %}
+
+<aside id="sidenav" data-toggle="{{ toggleState }}">
+    <div class="main-menu-wrapper">
+        {{ render(controller('BackendBundle:Backend:profile', {'action': action})) }}
+        <ul class="list-unstyled">
+            {#<li>
+                <a href="" class="active" title="{{ 'Events' | trans }}">
+                    <i class="fa fa-calendar"></i> {{ 'Events' | trans }}
+                </a>
+            </li>#}
+            <li>
+                <a href="{{ path('admin_index') }}" {% if action == 'admin_index' %}class="active"{% endif %} title="{{ 'Dashboard' | trans }}">
+                    <i class="fa fa-home"></i> {{ 'Dashboard' | trans }}
+                </a>
+            </li>
+            {#<li>
+                <a href="{{ path('admin_message_index') }}" {% if action == 'admin_message_index' %}class="active"{% endif %} title="{{ 'Messages' | trans }}">
+                    <i class="fa fa-envelope"></i> {{ 'Messages' | trans }}
+                </a>
+            </li>#}
+            {% if is_granted('ROLE_SUPER_ADMIN') %}
+            <li class="submenu {% if isSuperadminAction(action) %}open{% endif %}">
+                <a href="" title="{{ 'Superadmin' | trans }}">
+                    <i class="fa fa-lock"></i> {{ 'Superadmin' | trans }}
+                    <i class="fa fa-caret-down pull-right"></i>
+                </a>
+                <ul class="list-unstyled">
+                    <li>
+                        <a href="{{ path('super_admin_user_index') }}" title="{{ 'Users' | trans }}" {% if action == 'super_admin_user_index' or action == 'super_admin_user_create' or action == 'super_admin_user_edit' or action == 'super_admin_user_profile' %}class="active"{% endif %}>
+                            {{ 'Users' | trans }}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ path('super_admin_role_index') }}" title="{{ 'Roles' | trans }}" {% if action == 'super_admin_role_index' or action == 'super_admin_role_create' or action == 'super_admin_role_edit' %}class="active"{% endif %}>
+                            {{ 'Roles' | trans }}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ path('super_admin_forum_index') }}" class="active" title="{{ 'Forum' | trans }}">
+                            {{ 'Forum' | trans }}
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            {% endif %}
+            <li class="submenu {% if action == 'admin_tag_index' or action == 'admin_tag_create' or action == 'admin_tag_edit' or action == 'admin_category_index' or action == 'admin_category_create' or action == 'admin_category_edit' or action == 'admin_post_index' or action == 'admin_post_create' or action == 'admin_post_edit' or action == 'admin_post_view' %}open{% endif %}">
+                <a href="" title="{{ 'Blog' | trans }}">
+                    <i class="fa fa-pencil"></i> {{ 'Blog' | trans }}
+                    <i class="fa fa-caret-down pull-right"></i>
+                </a>
+                <ul class="list-unstyled">
+                    <li>
+                        <a href="{{ path('admin_post_index') }}" title="{{ 'Posts' | trans }}" {% if action == 'admin_post_index' or action == 'admin_post_create' or action == 'admin_post_edit' or action == 'admin_post_view' %}class="active"{% endif %}>
+                            {{ 'Posts' | trans }}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ path('admin_tag_index') }}" title="{{ 'Tags' | trans }}" {% if action == 'admin_tag_index' or action == 'admin_tag_create' or action == 'admin_tag_edit' %}class="active"{% endif %}>
+                            {{ 'Tags' | trans }}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ path('admin_category_index') }}" title="{{ 'Categories' | trans }}" {% if action == 'admin_category_index' or action == 'admin_category_create' or action == 'admin_category_edit' %}class="active"{% endif %}>
+                            {{ 'Categories' | trans }}
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li>
+                <a href="" class="active" title="{{ 'Forum' | trans }}">
+                    <i class="fa fa-comments-o"></i> {{ 'Forum' | trans }}
+                </a>
+            </li>
+        </ul>
+    </div>
+</aside>
+
+{% include 'BackendBundle:Scripts:sidenav-helper.html.twig' %}

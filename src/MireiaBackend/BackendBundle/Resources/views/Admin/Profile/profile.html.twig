@@ -1,0 +1,119 @@
+{% extends "BackendBundle:Layouts:2columns.html.twig" %}
+
+{% block breadcrumb %}
+    {% if superadmin is defined %}
+        {% set crumbs = {'Users': path('super_admin_user_index'), 'View user profile': '' } %}
+    {% else %}
+        {% set crumbs = {'Profile': '' } %}
+    {% endif %}
+    {{ setCrumbs(crumbs) }}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card-item">
+                <div class="p-overview">
+                    <form method="post" action="{% if superadmin is defined %}{{ path('super_admin_user_profile', {'id': user.id}) }}{% else %}{{ path('admin_user_profile') }}{% endif %}" {{ form_enctype(form) }}>
+                        <div class="p-picture">
+                            <a id="profile-image" href="" class="upload-photo">
+                                {% if user.imageProfile is defined and user.imageProfile is not null %}
+                                {% set image = user.imageProfile.getWebFilePath ~ '?' ~ random() %}
+                                {% else %}
+                                    {% set image = 'bundles/backend/img/no-photo.png' %}
+                                {% endif %}
+                                <img class="img-responsive" src="{{ asset(image) }}" />
+                                <button type="submit" class="hidden float-action-button fab-green borderless"><i class="fa fa-check"></i></button>
+                            </a>
+                            <div class="edit-mode">
+                                <span><i class="fa fa-camera"></i>{{ 'Upload new photo' | trans }}</span>
+                            </div>
+                            <div class="p-visits">
+                                <h2>152</h2>
+                                <small>visits</small>
+                            </div>
+                        </div>
+                        {{ form_widget(form.image, { 'attr': { 'class': 'hidden'} }) }}
+                        {{ form_rest(form) }}
+                    </form>
+                </div>
+
+                <div class="p-main clearfix">
+                    <!-- SUMMARY -->
+                    <div id="summary" class="p-block">
+                        <div class="p-block-header">
+                            <h2><i class="fa fa-folder-open"></i>{{ 'Summary' | trans }}</h2>
+                            <ul class="actions">
+                                <li>
+                                    <a href="" data-action="edit" data-target="#summary">
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="p-block-body">
+                            {% include 'BackendBundle:Admin:Profile/summary.html.twig' %}
+                        </div>
+                    </div>
+
+                    <!-- BASIC INFORMATION -->
+                    <div id="personal-data" class="p-block">
+                        <div class="p-block-header">
+                            <h2><i class="fa fa-user"></i>{{ 'Basic information' | trans }}</h2>
+                            <ul class="actions">
+                                <li>
+                                    <a href="" data-action="edit" data-target="#personal-data">
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="p-block-body">
+                            {% include 'BackendBundle:Admin:Profile/personal-data.html.twig' %}
+                        </div>
+                    </div>
+
+                    <!-- BASIC INFORMATION -->
+                    <div id="contact-data" class="p-block">
+                        <div class="p-block-header">
+                            <h2><i class="fa fa-phone"></i>{{ 'Contact information' | trans }}</h2>
+                            <ul class="actions">
+                                <li>
+                                    <a href="" data-action="edit" data-target="#contact-data">
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="p-block-body">
+                            {% include 'BackendBundle:Admin:Profile/contact-data.html.twig' %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {% include 'BackendBundle:Scripts:xmlhttprequest-helper.html.twig' %}
+    {% include 'BackendBundle:Scripts:image-thumbnail-helper.html.twig' %}
+    {% include 'BackendBundle:Scripts:profile-helper.html.twig' %}
+    <script>
+        window.addEventListener('load', function() {
+            function onLoad(evt) {
+                var img = this.container.querySelector('img');
+                img.src = evt.target.result;
+                var submitBtn = this.container.querySelector('button[type="submit"]');
+                submitBtn.classList.remove('hidden');
+            }
+
+            ImageThumbnail.single('#image_image', '#profile-image', null, '.upload-photo', onLoad);
+        });
+    </script>
+{% endblock %}

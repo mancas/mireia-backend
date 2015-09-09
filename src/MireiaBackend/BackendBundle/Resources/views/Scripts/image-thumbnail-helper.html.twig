@@ -1,0 +1,117 @@
+<script>
+    var ImageThumbnail = {
+        input: null,
+        container: null,
+        notToUpload: null,
+        queue: [],
+        locked: false,
+        cssClass: null,
+
+        single: function(selector, containerSelector, cssClass, triggerClass, cb) {
+            this._init(selector, containerSelector, cssClass, triggerClass);
+            this.callback = cb;
+        },
+
+        multiple: function(selector, containerSelector, cssClass, triggerClass) {
+            this.removeFile = this._removeFile.bind(this);
+            this.notToUpload = document.querySelector('input[name="not_upload_files"]');
+            this._init(selector, containerSelector, cssClass, triggerClass);
+        },
+
+        _init: function(selector, containerSelector, cssClass, triggerClass) {
+            this.cssClass = cssClass || 'image-thumbnail';
+            this.triggerClass = triggerClass || '.input-file, .input-file-sm';
+            this.input = document.querySelector(selector);
+            this.container = document.querySelector(containerSelector);
+            this.handleFileSelect = this._handleMultipleFilesSelect.bind(this);
+            this.input.addEventListener('change', this.handleFileSelect);
+
+            var inputFileBtn = document.querySelector(this.triggerClass);
+            inputFileBtn.addEventListener('click', function(evt) {
+                if (evt.target.nodeName === 'BUTTON' && evt.target.getAttribute('type') === 'submit') {
+                    evt.target.click();
+                    return;
+                }
+                evt.preventDefault();
+                this.input.click();
+            }.bind(this))
+        },
+
+        removeListener: function() {
+            this.input.removeEventListener('change', this.handleFileSelect);
+        },
+
+        _handleMultipleFilesSelect: function(evt) {
+            var files = evt.target.files;
+            // Clear files since the filelist has been reset
+            if (evt.target.getAttribute('multiple')) {
+                this.notToUpload.value = '';
+                this.container.innerHTML = '';
+            }
+
+            if (!"FileReader" in window) {
+                var p = document.createElement('p');
+                p.textContent = '{{ 'Your browser does not support FileReader' | trans }}';
+                this.container.appendChild(p);
+                return;
+            }
+
+            for (var i = 0, f; f = files[i]; i++) {
+                // Only process image files.
+                if (!f.type.match('image.*')) {
+                    continue;
+                }
+                var reader = new FileReader();
+                var self = this;
+
+                var onload = (function(file) {
+                    return function(e) {
+                        // Render thumbnail.
+                        var li = document.createElement('li');
+                        li.innerHTML = ['<img class="', self.cssClass ,'" src="', e.target.result,
+                            '" title="', file.name, '"/>'].join('');
+                        self.queue.push(li);
+                        li.addEventListener('click', self.removeFile);
+                        li.dataset.file = file.name;
+                        self._processQueue();
+                    };
+                })(f);
+
+                // Closure to capture the file information.
+                if (self.callback && typeof self.callback === 'function') {
+                    reader.onload = self.callback.bind(self);
+                } else {
+                    reader.onload = onload;
+                }
+
+                // Read in the image file as a data URL.
+                reader.readAsDataURL(f);
+            }
+        },
+
+        _removeFile: function(evt) {
+            this.notToUpload.value += evt.target.dataset.file + ';'
+            evt.target.parentNode.removeChild(evt.target);
+        },
+
+        _processQueue: function() {
+            if (this.queue.length === 0 || this.locked) {
+                return;
+            }
+            this.locked = true;
+            var li = this.queue.shift();
+            var self = this;
+
+            function onAnimationEnd() {
+                li.removeEventListener('animationend', onAnimationEnd);
+                li.classList.remove('fadeInRight');
+                self.locked = false;
+                self._processQueue();
+            }
+
+            li.addEventListener('animationend', onAnimationEnd);
+            this.container.appendChild(li);
+            li.classList.add('fadeInRight');
+        }
+    };
+</script>

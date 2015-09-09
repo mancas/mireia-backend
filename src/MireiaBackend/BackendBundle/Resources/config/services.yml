@@ -1,0 +1,24 @@
+imports:
+    - { resource: "../../../../../app/config/parameters.yml" }
+
+parameters:
+    admin.adminformhandler.class: MireiaBackend\BackendBundle\Form\Handler\AdminUserFormHandler
+    admin.adminmanager.class: MireiaBackend\BackendBundle\Form\Handler\AdminUserManager
+    #admin.create_salt.class: MireiaBackend\BackendBundle\EventListener\RegisterAdminEventSubscriber
+    admin.roleformhandler.class: MireiaBackend\BackendBundle\Form\Handler\RoleFormHandler
+
+services:
+    admin.admin_user_manager:
+        class: %admin.adminmanager.class%
+        arguments: [@doctrine.orm.entity_manager, @security.encoder_factory]
+    admin.admin_user_form_handler:
+        class: %admin.adminformhandler.class%
+        arguments: [@admin.admin_user_manager]
+    admin.admin_role_form_handler:
+        class: %admin.roleformhandler.class%
+        arguments: [@doctrine.orm.entity_manager]
+    #admin.create_salt_listener:
+    #    class: %admin.create_salt.class%
+    #   arguments: [@security.encoder_factory]
+    #   tags:
+    #       - { name: doctrine.event_subscriber }

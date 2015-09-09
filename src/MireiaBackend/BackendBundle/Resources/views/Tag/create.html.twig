@@ -1,0 +1,51 @@
+{% extends 'BackendBundle:Layouts:2columns.html.twig' %}
+
+{% block breadcrumb %}
+    {% if edition is defined %}
+        {% set crumbs = {'Tags': path('admin_tag_index'), 'Edit tag': '' } %}
+    {% else %}
+        {% set crumbs = {'Tags': path('admin_tag_index'), 'Create tag': '' } %}
+    {% endif %}
+
+    {{ setCrumbs(crumbs) }}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card-item card-indigo">
+                <form method="post" action="{% if edition is defined %}{{ path('admin_tag_edit',{'slug':tag.slug}) }} {% else %} {{ path('admin_tag_create') }}{% endif %}">
+                    <div class="card-title">
+                        <h2>
+                            {% if edition is defined %}
+                                {{ 'Tag edition' | trans }}
+                            {% else %}
+                                {{ 'Tag creation' | trans }}
+                            {% endif %}
+                        </h2>
+
+                        <h3>
+                            {% if edition is defined %}
+                                {{ 'Here you can create edit the tag' | trans }}
+                            {% else %}
+                                {{ 'Here you can create new tags for your posts' | trans }}
+                            {% endif %}
+                        </h3>
+
+                        <button type="submit" class="float-action-button fab-red borderless">
+                            <i class="fa fa-check"></i>
+                        </button>
+                    </div>
+                    <div class="card-description card-padding">
+                        <div class="row">
+                            <div class="col-md-8">
+                                {% include 'BackendBundle:Tag:tag-form.html.twig' %}
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

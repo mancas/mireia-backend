@@ -1,0 +1,51 @@
+{% extends 'BackendBundle:Layouts:2columns.html.twig' %}
+
+{% block breadcrumb %}
+    {% if edition is defined %}
+        {% set crumbs = {'Roles': path('super_admin_role_index'), 'Edit role': '' } %}
+    {% else %}
+        {% set crumbs = {'Roles': path('super_admin_role_index'), 'Create role': '' } %}
+    {% endif %}
+
+    {{ setCrumbs(crumbs) }}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card-item card-indigo">
+                <form method="post" action="{% if edition is defined %}{{ path('super_admin_role_edit',{'slug':role.slug}) }} {% else %} {{ path('super_admin_role_create') }}{% endif %}">
+                    <div class="card-title">
+                        <h2>
+                            {% if edition is defined %}
+                                {{ 'Role edition' | trans }}
+                            {% else %}
+                                {{ 'Role creation' | trans }}
+                            {% endif %}
+                        </h2>
+
+                        <h3>
+                            {% if edition is defined %}
+                                {{ 'Here you can edit the role' | trans }}
+                            {% else %}
+                                {{ 'Here you can create new role' | trans }}
+                            {% endif %}
+                        </h3>
+
+                        <button type="submit" class="float-action-button fab-red borderless">
+                            <i class="fa fa-check"></i>
+                        </button>
+                    </div>
+                    <div class="card-description card-padding">
+                        <div class="row">
+                            <div class="col-md-8">
+                                {% include 'BackendBundle:Admin:Role/role-form.html.twig' %}
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,68 @@
+<script>
+    var HTMLHelper = {
+        init: function() {
+            this._initFormEvents();
+            this._initCloseEvents();
+            this._initShakeElements();
+            this._initDeleteAlertEvents();
+        },
+
+        _initCloseEvents: function() {
+            var closeTags = document.querySelectorAll('.close');
+            Array.prototype.forEach.call(closeTags, function(tag) {
+                tag.addEventListener('click', function(evt) {
+                    evt.preventDefault();
+                    tag.parentNode.classList.add('closed');
+                });
+            });
+        },
+
+        _initShakeElements: function() {
+            var shakeElements = document.querySelectorAll('[data-shake="true"]');
+            Array.prototype.forEach.call(shakeElements, function(elem) {
+                elem.classList.add('shake');
+            });
+        },
+
+        _initFormEvents: function() {
+            var inputs = document.querySelectorAll('.form-control');
+            Array.prototype.forEach.call(inputs, function(elem) {
+                elem.addEventListener('focus', function(){
+                    elem.parentNode.classList.add('toggled');
+                });
+
+                elem.addEventListener('blur', function(){
+                    elem.parentNode.classList.remove('toggled');
+                });
+            });
+        },
+
+        _initDeleteAlertEvents: function() {
+            var cancelBtn = document.querySelector('#dia-cancel');
+            var deleteBtn = document.querySelector('#dia-delete');
+
+            cancelBtn.addEventListener('click', function(evt) {
+                evt.preventDefault();
+                AlertHelper.close('#delete-item-alert');
+            });
+
+            var deleteBtns = document.querySelectorAll('.delete');
+            Array.prototype.forEach.call(deleteBtns, function(btn) {
+                btn.addEventListener('click', function(evt) {
+                    evt.preventDefault();
+                    deleteBtn.addEventListener('click', function callback(evt) {
+                        evt.preventDefault();
+                        deleteBtn.removeEventListener('click', callback);
+                        window.location.href = btn.getAttribute('href');
+                    });
+
+                    AlertHelper.alert('#delete-item-alert');
+                })
+            });
+        }
+    };
+
+    window.addEventListener('load', function() {
+        HTMLHelper.init();
+    });
+</script>

@@ -1,0 +1,98 @@
+{% extends 'BackendBundle:Layouts:2columns.html.twig' %}
+
+{% block breadcrumb %}
+    {{ setCrumbs({'Posts': path('admin_post_index'), 'View post': ''}) }}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card-item card-cyan">
+                <div class="card-title">
+                    <h2>
+                        {{ 'View post' | trans }}
+                    </h2>
+
+                    <h3>
+                        {{ 'In this panel you can view the post that will be posted soon' | trans }}
+                    </h3>
+                </div>
+                <div class="card-description card-padding">
+                    <h1>{{ post.title }}</h1>
+                    <h2 class="subtitle">
+                        {{ post.subtitle | raw }}
+                    </h2>
+                    {% if post.category is defined %}
+                        <span class="category">{{ post.category }}</span>
+                    {% endif %}
+
+                    <section class="post-body">
+                        {{ post.body | raw }}
+                    </section>
+
+                    <div class="tags">
+                        <ul class="list-unstyled">
+                            {% for tag in post.tags %}
+                                <li><a href="" title="">{{ tag }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if not post.hasFeedback(user) %}
+        {% include 'BackendBundle:Post:feedback-form.html.twig' %}
+    {% else %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="simple-card sc-cyan">
+                    <a href="" title="Close" class="close"><i class="fa fa-times"></i></a>
+                    <p>
+                        {{ 'You have already gave your feedback about this post' | trans }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if post.feedbacks | length > 0 %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card-item card-indigo feedback-card">
+                    <div class="card-title">
+                        <h2>
+                            {{ 'Feedbacks' | trans }}
+                        </h2>
+                    </div>
+                    <div class="card-description no-padding">
+                        <div class="list-view feedback-list">
+                            {% for feedback in post.feedbacks %}
+                            <a class="list-item {% if feedback.getFeedbackType == 'positive' %}fpositive{% else %}fnegative{% endif %}">
+                                {% if feedback.author.imageProfile is defined and feedback.author.imageProfile is not null %}
+                                    {% set path = feedback.author.imageProfile.imageProfileAvatar.webFilePath %}
+                                {% else %}
+                                    {% set path = 'bundles/backend/img/user-1.jpg' %}
+                                {% endif %}
+                                <img class="li-small pull-left" src="{{ asset(path) }}" />
+                                <span class="list-content media-body">
+                                    <b class="li-title">{% if feedback.author.name is defined and feedback.author.name is not null %}{{ feedback.author.name }} {{ feedback.author.lastName }}{% else %}{{ feedback.author.username }}{% endif %}</b>
+                                    <small class="li-description no-wrap">{{ feedback }}</small>
+                                </span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {% include 'BackendBundle:Scripts:feedback-helper.html.twig' %}
+{% endblock %}

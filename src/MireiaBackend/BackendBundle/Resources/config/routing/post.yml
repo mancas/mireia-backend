@@ -1,0 +1,35 @@
+admin_post_index:
+    pattern: /
+    defaults: { _controller: BackendBundle:Post:list }
+
+admin_post_edit:
+    pattern: /edit/{slug}
+    defaults: { _controller: BackendBundle:Post:edit }
+
+admin_post_delete:
+    pattern: /delete/{slug}
+    defaults: { _controller: BackendBundle:Post:delete }
+
+admin_post_create:
+    pattern: /create
+    defaults: { _controller: BackendBundle:Post:create }
+
+admin_post_publish:
+    pattern: /publish/{slug}
+    defaults: { _controller: BackendBundle:Post:publish }
+
+admin_post_unpublish:
+    pattern: /unpublish/{slug}
+    defaults: { _controller: BackendBundle:Post:unpublish }
+
+admin_post_restore:
+    pattern: /restore/{slug}
+    defaults: { _controller: BackendBundle:Post:restore }
+
+admin_post_view:
+    pattern: /view/{slug}
+    defaults: { _controller: BackendBundle:Post:view }
+
+admin_post_send_feedback:
+    pattern: /view/{slug}/send-feedback
+    defaults: { _controller: BackendBundle:Post:sendFeedback }

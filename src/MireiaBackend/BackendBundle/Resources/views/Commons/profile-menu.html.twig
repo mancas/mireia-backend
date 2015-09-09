@@ -1,0 +1,29 @@
+<div class="profile-menu">
+    <div class="profile-wrapper">
+        <span class="profile-photo">
+            {% if user.imageProfile is defined and user.imageProfile is not null %}
+                {% set path = user.imageProfile.imageProfileAvatar.webFilePath %}
+            {% else %}
+                {% set path = 'bundles/backend/img/user-1.jpg' %}
+            {% endif %}
+            <img class="img-responsive" src="{{ asset(path) }}">
+        </span>
+
+        <a class="profile-name">
+            {{ 'Welcome back' | trans }} {{ user.username | capitalize }}
+            <i class="fa fa-caret-down"></i>
+        </a>
+    </div>
+    <ul id="profile-menu" class="list-unstyled">
+        <li>
+            <a href="{{ path('admin_user_profile') }}" title="{{ 'View profile' | trans }}" {% if action == 'admin_user_profile' %}class="active"{% endif %}>
+                <i class="fa fa-user"></i> {{ 'View profile' | trans }}
+            </a>
+        </li>
+        <li>
+            <a href="" title="{{ 'Change password' | trans }}">
+                <i class="fa fa-gear"></i> {{ 'Change password' | trans }}
+            </a>
+        </li>
+    </ul>
+</div>

@@ -1,0 +1,7 @@
+project:
+    resource: "@ProjectBundle/Resources/config/routing.yml"
+    prefix:   /
+
+backend:
+    resource: "@BackendBundle/Resources/config/routing.yml"
+    prefix:   /bo

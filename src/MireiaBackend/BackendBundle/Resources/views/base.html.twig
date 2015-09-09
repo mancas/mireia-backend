@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{{"Panel de administración" | trans }}</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="{{ asset('bundles/frontend/img/favicon.ico') }}">
+    <script src="{{ asset('bundles/backend/js/jquery.min.js') }}"></script>
+    {% block mainstylesheets %}
+        <link rel="stylesheet" href="{{ asset('bundles/backend/css/bootstrap.min.css') }}">
+        {% stylesheets filter='cssrewrite, sass' output='css/backoffice.css'
+        'bundles/backend/css/font-awesome.min.css'
+        'bundles/backend/css/animations.scss'
+        'bundles/backend/css/custom.scss'%}
+        <link rel="stylesheet" href="{{ asset_url }}" />
+        {% endstylesheets %}
+    {% endblock %}
+    {% block stylesheets %}{% endblock %}
+</head>
+<body data-color="blue" class="flat">
+{% block header %}{% endblock %}
+<section id="main" class="{% block sectionclass %}{% endblock %}">
+    {% block sidenav %}{% endblock %}
+    {% block body %}{% endblock %}
+    {% block footer %}{% endblock %}
+
+    <!-- ALERTS -->
+    <div id="delete-item-alert" class="material-alert">
+        <div class="material-alert-warning">
+            <span class="ma-warning-long line"></span>
+            <span class="ma-warning-dot line"></span>
+        </div>
+        <h2>{{ 'Are you sure?' | trans }}</h2>
+        <p>
+            {{ 'You will not be able to undo this operation!' | trans }}
+        </p>
+        <button id="dia-cancel" class="btn btn-default">{{ 'Cancel' | trans }}</button>
+        <button id="dia-delete" class="btn btn-red">{{ 'Yes, delete it' | trans }}</button>
+    </div>
+
+    {% block alerts %}{% endblock %}
+
+    {% block javascripts %}
+        <script>
+            $(document).ready(function(){
+                $('form').bind('submit', function(event) {
+                    $('.loader').show();
+                })
+            });
+        </script>
+    {% endblock %}
+</section>
+</body>
+</html>

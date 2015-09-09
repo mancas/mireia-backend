@@ -1,0 +1,43 @@
+{% extends 'BackendBundle:Layouts:2columns.html.twig' %}
+
+{% block breadcrumb %}
+    {% if edition is defined %}
+        {% set crumbs = {'Categories': path('admin_category_index'), 'Edit category': '' } %}
+    {% else %}
+        {% set crumbs = {'Categories': path('admin_category_index'), 'Create category': '' } %}
+    {% endif %}
+
+    {{ setCrumbs(crumbs) }}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card-item card-green">
+                <form method="post" action="{% if edition is defined %}{{ path('admin_category_edit',{'slug':category.slug}) }} {% else %} {{ path('admin_category_create') }}{% endif %}">
+                    <div class="card-title">
+                        <h2>
+                            {{ 'Category creation' | trans }}
+                        </h2>
+
+                        <h3>
+                            {{ 'Here you can create new categories for your posts' | trans }}
+                        </h3>
+
+                        <button type="submit" class="float-action-button fab-amber borderless">
+                            <i class="fa fa-check"></i>
+                        </button>
+                    </div>
+                    <div class="card-description card-padding">
+                        <div class="row">
+                            <div class="col-md-8">
+                                {% include 'BackendBundle:Category:category-form.html.twig' %}
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

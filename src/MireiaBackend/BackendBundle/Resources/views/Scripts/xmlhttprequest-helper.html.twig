@@ -1,0 +1,31 @@
+<script>
+    var XMLHttpRequestHelper = {
+        sendRequest: function(options) {
+            console.info(options.params);
+            var xhr = new XMLHttpRequest();
+            xhr.open(options.method, options.path, true);
+            if (options.headers !== null && typeof options.headers !== 'undefined') {
+                for (var key in options.headers) {
+                    xhr.setRequestHeader(key, options.headers[key]);
+                }
+            }
+            // Symfony needs these headers
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.send(options.params);
+
+            xhr.onload = function (evt) {
+                if (xhr.status === 200) {
+                    options.onsuccess && options.onsuccess(xhr.response);
+                } else {
+                    options.onerror && options.onerror(xhr.statusText);
+                }
+            };
+
+            xhr.onerror = options.onerror;
+
+            xhr.onreadystatechange = function () {
+                console.info(xhr.response);
+            }
+        }
+    };
+</script>

@@ -1,0 +1,15 @@
+super_admin_avatar_index:
+  pattern: /avatars
+  defaults: { _controller: BackendBundle:Admin:avatars }
+
+super_admin_role:
+    resource: "@BackendBundle/Resources/config/routing/admin/role.yml"
+    prefix: /roles/
+
+super_admin_user:
+    resource: "@BackendBundle/Resources/config/routing/admin/user.yml"
+    prefix: /users/
+
+super_admin_forum:
+    resource: "@BackendBundle/Resources/config/routing/admin/forum.yml"
+    prefix: /forums/

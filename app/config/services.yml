@@ -1,0 +1,9 @@
+services:
+    twig.extension.breadcrumb:
+        class: MireiaBackend\BackendBundle\Twig\Extension\BreadcrumbExtension
+        tags:
+            - { name: twig.extension }
+    twig.extension.isSuperadminAction:
+        class: MireiaBackend\BackendBundle\Twig\Extension\IsSuperadminAction
+        tags:
+            - { name: twig.extension }

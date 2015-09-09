@@ -1,0 +1,98 @@
+<div class="pbb-view">
+    <dl class="dl-horizontal">
+        <dt>
+            {{ 'Name' | trans }}
+        </dt>
+        <dd data-update="admin_user_profile_name">
+            {% if user.name %}{{ user.name }}{% else %}{{ user.username }}{% endif %}
+        </dd>
+    </dl>
+
+    <dl class="dl-horizontal">
+        <dt>
+            {{ 'Surname' | trans }}
+        </dt>
+        <dd data-update="admin_user_profile_lastName">
+            {% if user.lastName %}{{ user.lastName }}{% endif %}
+        </dd>
+    </dl>
+
+    <dl class="dl-horizontal">
+        <dt>
+            {{ 'Degree' | trans }}
+        </dt>
+        <dd data-update="admin_user_profile_degree">
+            {% if user.degree %}{{ user.degree }}{% endif %}
+        </dd>
+    </dl>
+
+    <dl class="dl-horizontal">
+        <dt>
+            {{ 'About me' | trans }}
+        </dt>
+        <dd data-update="admin_user_profile_aboutMe">
+            {% if user.aboutMe %}{{ user.aboutMe }}{% endif %}
+        </dd>
+    </dl>
+</div>
+
+<div class="pbb-edit">
+    <form id="profile-personal-data" action="{% if superadmin is defined %}{{ path('super_admin_user_update_profile', {'id': user.id}) }}{% else %}{{ path('admin_user_profile_update') }}{% endif %}" method="post">
+        <dl class="dl-horizontal">
+            <dt>
+                {{ 'Name' | trans }}
+            </dt>
+            <dd>
+                <div class="form-group">
+                    <div class="line">
+                        <input class="form-control" type="text" name="admin_user_profile[name]" value="{% if user.name is not null %}{{ user.name }}{% endif %}" placeholder="{{ 'Your name...' | trans }}" />
+                    </div>
+                </div>
+            </dd>
+        </dl>
+
+        <dl class="dl-horizontal">
+            <dt>
+                {{ 'Surname' | trans }}
+            </dt>
+            <dd>
+                <div class="form-group">
+                    <div class="line">
+                        <input class="form-control" type="text" name="admin_user_profile[lastName]" value="{% if user.lastName is not null %}{{ user.lastName }}{% endif %}" placeholder="{{ 'Your surname...' | trans }}" />
+                    </div>
+                </div>
+            </dd>
+        </dl>
+
+        <dl class="dl-horizontal">
+            <dt>
+                {{ 'Degree' | trans }}
+            </dt>
+            <dd>
+                <div class="form-group">
+                    <div class="line">
+                        <input class="form-control" type="text" name="admin_user_profile[degree]" value="{% if user.degree is not null %}{{ user.degree }}{% endif %}" placeholder="{{ 'Your degree...' | trans }}" />
+                    </div>
+                </div>
+            </dd>
+        </dl>
+
+        <dl class="dl-horizontal">
+            <dt>
+                {{ 'About me' | trans }}
+            </dt>
+            <dd>
+                <div class="form-group">
+                    <div class="line">
+                        <textarea name="admin_user_profile[aboutMe]" class="form-control" value="{% if user.aboutMe %}{{ user.aboutMe }}{% endif %}" placeholder="{{ 'About me...' }}" rows="5">{% if user.aboutMe %}{{ user.aboutMe }}{% endif %}</textarea>
+                    </div>
+                </div>
+            </dd>
+        </dl>
+
+        <div class="mt1">
+            <button type="submit" class="btn btn-blue">{{ 'Save' | trans }}</button>
+            <button type="reset" class="btn btn-default borderless cancel">{{ 'Cancel' | trans }}</button>
+        </div>
+    </form>
+</div>

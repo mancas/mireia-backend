@@ -1,0 +1,151 @@
+{% extends 'BackendBundle:Layouts:2columns.html.twig' %}
+
+{% block breadcrumb %}
+    {% if edition is defined %}
+        {% set crumbs = {'Posts': path('admin_post_index'), 'Edit post': '' } %}
+    {% else %}
+        {% set crumbs = {'Posts': path('admin_post_index'), 'Create post': '' } %}
+    {% endif %}
+
+    {{ setCrumbs(crumbs) }}
+    {{ parent() }}
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('bundles/backend/css/tinymce-content.css') }}" />
+    <link rel="stylesheet" href="{{ asset('bundles/backend/css/select2.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('bundles/backend/css/custom.select2.css') }}" />
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card-item card-cyan">
+                <form method="post" action="{% if edition is defined %}{{ path('admin_post_edit',{'slug':post.slug}) }} {% else %} {{ path('admin_post_create') }}{% endif %}" {{ form_enctype(imageForm) }}>
+                    <div class="card-title">
+                        <h2>
+                            {{ 'Post creation' | trans }}
+                        </h2>
+
+                        <h3>
+                            {{ 'Here you can create new posts' | trans }}
+                        </h3>
+
+                        <button type="submit" class="float-action-button fab-red borderless">
+                            <i class="fa fa-check"></i>
+                        </button>
+                    </div>
+                    <div class="card-description card-padding">
+                        <div class="row">
+                            <div class="col-md-9">
+                                {% include 'BackendBundle:Post:post-form.html.twig' %}
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block alerts %}
+    {% if edition is defined %}
+    <!-- ALERTS -->
+    <div id="edit-img-alert" class="material-alert">
+        <img data-update="src" src="" />
+        <h2>{{ 'Edit image' | trans }}</h2>
+        <form data-update="action" action="" id="edit-image" method="post">
+            <div class="form-group text-left">
+                <label for="post_subtitle">{{ 'Image alt' | trans }}</label>
+                <div class="line">
+                    <input data-update="value" type="text" class="form-control" name="image[description]" />
+                </div>
+                <small class="help-block">
+                    {{ 'Alt attribute is used in SEO' | trans }}
+                </small>
+            </div>
+
+            <div class="delete-image">
+                <a data-update="href" href="" class="delete-img btn btn-danger"><i class="fa fa-trash"></i>{{ 'Delete image' | trans }}</a>
+            </div>
+            <button id="dia-cancel" data-close="#edit-img-alert" type="reset" class="btn btn-default">{{ 'Cancel' | trans }}</button>
+            <button id="dia-save" type="submit" class="btn btn-blue">{{ 'Save changes' | trans }}</button>
+        </form>
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('bundles/backend/js/select2.min.js') }}"></script>
+    {% include 'BackendBundle:Scripts:xmlhttprequest-helper.html.twig' %}
+    {% include 'BackendBundle:Scripts:image-thumbnail-helper.html.twig' %}
+    <script>
+        window.addEventListener('load', function(evt) {
+            $(".select2").select2();
+            ImageThumbnail.multiple('#multiple_images_images', '#upload-thumbnails');
+
+            {% if edition is defined and post.images | length > 0 %}
+            var postImages = document.querySelectorAll('#thumbnails li');
+
+            Array.prototype.forEach.call(postImages, function(image) {
+                image.addEventListener('click', function(evt) {
+                    evt.preventDefault();
+                    var newContent = {
+                        src: image.dataset.src,
+                        value: image.dataset.description,
+                        action: image.dataset.action,
+                        href: image.dataset.deletePath
+                    };
+                    AlertHelper.updateContent('#edit-img-alert', newContent);
+                    AlertHelper.alert('#edit-img-alert');
+                })
+            });
+
+            var form = document.querySelector('form#edit-image');
+            form.addEventListener('submit', function(evt) {
+                evt.preventDefault();
+                var path = evt.target.getAttribute('action');
+                var data = new FormData(evt.target);
+
+                function onSuccess(responseText) {
+                    var response = JSON.parse(responseText);
+                    if (response.ok) {
+                        AlertHelper.close('#edit-img-alert');
+                        var updatedValues = response.updatedValues;
+                        for (var key in updatedValues) {
+                            var elemsToUpdate = document.querySelectorAll('[data-' + key + ']');
+                            Array.prototype.forEach.call(elemsToUpdate, function(elm) {
+                                elm.dataset[key] = updatedValues[key];
+                            });
+                        }
+                    }
+                }
+
+                XMLHttpRequestHelper.sendRequest({method: 'post', path: path,
+                    params: data, onsuccess: onSuccess});
+            });
+
+            var deleteImgBtn = document.querySelector('.delete-img');
+            deleteImgBtn.addEventListener('click', function(evt) {
+                var path = evt.target.getAttribute('href');
+                evt.preventDefault();
+                XMLHttpRequestHelper.sendRequest({method: 'post', path: path, data: null, onsuccess: function onsuccess(result) {
+                    var response = JSON.parse(result);
+                    if (response.ok) {
+                        var li = document.querySelector('[data-delete-path="' + path + '"]')
+                        li.parentNode.removeChild(li);
+                        AlertHelper.close('#edit-img-alert');
+                    }
+                }});
+            });
+            {% endif %}
+        });
+        function tinymce_button_strong(ed) {
+            var theText = ed.selection.getContent();
+            ed.selection.setContent('<strong>'+theText+'</strong>');
+        }
+    </script>
+    {{ tinymce_init({'inline-styles': false}) }}
+{% endblock %}

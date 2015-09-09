@@ -1,0 +1,193 @@
+<script>
+    var ChatHelper = {
+        form: null,
+        messagesContainer: null,
+        titleContainer: null,
+        deleteBtn: null,
+        threads: null,
+        threadsContainer: null,
+
+        init: function(form) {
+            if (typeof form !== 'object') {
+                this.form = document.querySelector('form#' + form);
+                if (typeof this.form !== 'object') {
+                    console.error('Form does not exists');
+                    return;
+                }
+            }
+            this.messagesContainer = document.querySelector('.card-chat-messages');
+            this.titleContainer = document.querySelector('.chat-body .card-title h2');
+            this.deleteBtn = document.querySelector('.chat-body .card-title .delete-thread');
+            this.threads = document.querySelectorAll('.card-chat-thread .list-item');
+            this.threadsContainer = document.querySelector('.card-chat-thread .list-view');
+            this._initSendEvents();
+            this._initSelectThreadEvents();
+            this._initClickEvents();
+        },
+
+        _initSendEvents: function() {
+            var sendBtn = document.querySelector('.send');
+            var self = this;
+
+            sendBtn.addEventListener('click', function(evt) {
+                evt.preventDefault();
+                var message = self.form.querySelector('textarea').value;
+                if (message === '') {
+                    return;
+                }
+                var path = self.form.getAttribute('action');
+                var data = new FormData(self.form);
+                var callback = function(responseText) {
+                    self.form.reset();
+                    var response = JSON.parse(responseText);
+                    if (response.ok) {
+                        self.appendMessage(message, response.avatar, response.time);
+                    }
+                };
+                XMLHttpRequestHelper.sendRequest({method: 'post', path: path,
+                    params: data, onsuccess: callback});
+            });
+        },
+
+        _initSelectThreadEvents: function() {
+            var self = this;
+
+            Array.prototype.forEach.call(this.threads, function (thread) {
+                thread.addEventListener('click', function(evt) {
+                    evt.preventDefault();
+                    var path = thread.href;
+
+                    var callback = function(responseText) {
+                        var response = JSON.parse(responseText);
+                        if (response.ok) {
+                            self.updateThread(thread, response.chat, response.url);
+                        }
+                    };
+
+                    XMLHttpRequestHelper.sendRequest({method: 'post', path: path, onsuccess: callback});
+                });
+            });
+        },
+
+        appendMessage: function(message, avatar, time) {
+            var list = this.form.parentNode.parentNode.querySelector('ul.list-view');
+            if (!list) {
+                var ul = document.createElement('ul');
+                ul.classList.add('list-view');
+                this.messagesContainer.innerHTML = '';
+                this.messagesContainer.appendChild(ul);
+                list = ul;
+            }
+            var li = document.createElement('li');
+            li.className = 'right list-item transparent';
+            var img = document.createElement('img');
+            img.className = 'list-avatar pull-right';
+            img.src = avatar;
+
+            li.appendChild(img);
+
+            var mediaBody = document.createElement('div');
+            mediaBody.className = 'media-body';
+            var listBubble = document.createElement('div');
+            listBubble.className = 'list-bubble';
+            var p = document.createElement('p');
+            p.textContent = message;
+
+            listBubble.appendChild(p);
+            mediaBody.appendChild(listBubble);
+            li.appendChild(mediaBody);
+
+            var small = document.createElement('small');
+            small.className = 'bubble-date';
+            var i = document.createElement('i');
+            i.className = 'fa fa-clock-o';
+
+            small.appendChild(i);
+            small.innerHTML += time;
+
+            mediaBody.appendChild(small);
+            list.appendChild(li);
+            // TODO: Look for another way
+            setTimeout(function() {
+                li.classList.remove('transparent');
+                list.scrollTop = list.scrollHeight;
+            }, 100);
+        },
+
+        updateThread: function(thread, chat, url) {
+            this.messagesContainer.innerHTML = chat;
+            var img = thread.children[0];
+            var name = thread.children[1];
+
+            var titleImg = document.createElement('img');
+            titleImg.src = img.src;
+
+            this.titleContainer.innerHTML = '';
+            this.titleContainer.appendChild(titleImg);
+            this.titleContainer.innerHTML += name.children[0].textContent;
+
+            var currentActive = this.threadsContainer.querySelector('.active');
+            currentActive.classList.remove('active');
+            thread.classList.add('active');
+
+            this.form.setAttribute('action', url);
+        },
+
+        _initClickEvents: function() {
+            var addThreadBtns = document.querySelectorAll('.add-thread');
+
+            Array.prototype.forEach.call(addThreadBtns, function(btn) {
+                btn.addEventListener('click', function(evt) {
+                    evt.preventDefault();
+                    AlertHelper.alert('#add-thread-alert');
+                })
+            });
+
+            var usersBtns = document.querySelectorAll('#add-thread-alert a.list-item');
+            var select = document.querySelector('#add-thread-alert select');
+            Array.prototype.forEach.call(usersBtns, function(btn) {
+                btn.addEventListener('click', function(evt) {
+                    evt.preventDefault();
+                    var selected = btn.dataset.selected;
+                    btn.dataset.selected = selected === "true" ? false : true;
+                    var option = select.querySelector('option[value="' + btn.dataset.id + '"]');
+                    option.selected = !option.selected;
+                })
+            });
+
+            var form = document.querySelector('#add-thread-alert form');
+            form.addEventListener('submit', function(evt) {
+                evt.preventDefault();
+                var data = new FormData(evt.target);
+                this.createNewThread(form.getAttribute('action'), data);
+            }.bind(this));
+        },
+
+        createNewThread: function(path, data) {
+            var participants = document.querySelectorAll('#add-thread-alert a[data-selected="true"]');
+            var ids = [];
+            var self = this;
+            Array.prototype.forEach.call(participants, function(participant) {
+                ids.push(participant.dataset.id);
+                // Clear selected flag
+                participant.dataset.selected = false;
+            });
+
+            var onSuccess = function(responseText) {
+                console.info(responseText);
+                var response = JSON.parse(responseText);
+                if (response.ok) {
+                    self.threadsContainer.innerHTML = response.thread +
+                        self.threadsContainer.innerHTML;
+                    var newThread = self.threadsContainer.querySelector('[data-thread="' + response.id + '"]');
+                    self.updateThread(newThread, response.chat, response.url);
+                }
+            };
+
+            if (ids.length > 0) {
+                XMLHttpRequestHelper.sendRequest({method: 'post', path: path,
+                    params: data, onsuccess: onSuccess});
+            }
+        }
+    };
+</script>
